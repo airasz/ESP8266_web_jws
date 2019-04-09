@@ -18,6 +18,8 @@ config: board: generic esp8266 1st index
 */
 
 // this line add in windows
+// added line in manjaro
+
 
 #include <ESP8266WiFi.h>
 // #include <ESP8266WiFiMulti.h>
