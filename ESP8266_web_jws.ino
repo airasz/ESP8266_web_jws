@@ -47,7 +47,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RS
 const char* ssid = STASSID;
 const char* password = STAPSK;
 
-const char* host = "www.dream.co.id";
+const char* host = "dream.co.id";
 const int httpsPort = 443;   //443
  WiFiClientSecure client;
 
@@ -56,3 +56,244 @@ const int httpsPort = 443;   //443
 // Use web browser to view and copy
 // SHA1 fingerprint of the certificate
 const char fingerprint[] PROGMEM = "36 91 7F 63 0D CA 86 8D 9E 4C CC B8 48 A6 A9 AF A0 5D 68 43";
+String sshubuh,sdzuhur,sashar,smaghrib,sisyak;
+int jsb,jdz,jas,jmg,jis,msb,mdz,mas,mmg,mis;
+String datajadwal;
+String jadwal0,jadwal1,jadwal2,jadwal3,jadwal4;
+String tftlog;
+String txtft;
+
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println();
+  pinMode(pinBL, OUTPUT);
+  digitalWrite(pinBL, HIGH);
+
+  tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
+  tft.fillScreen(ST77XX_BLACK);
+  tftsetlog("starting jadwal solat");
+  tftsetlog("connecting to "+ String(ssid));
+  Serial.print("connecting to ");
+  Serial.println(ssid);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.print("connecting>");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    
+    Serial.print(">");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  tftsetlog("connected");
+  // Use WiFiClientSecure class to create TLS connection
+  tftsetlog("request jadwal to "+ String(host));
+  reqjadwal();
+}
+
+void tftsetlog(String txt){
+  // logline+=10;
+  // tft.setCursor(0,0);
+  tft.setTextWrap(1);
+  tft.setTextColor(ST77XX_GREEN);
+  tft.print(">");
+  tft.setTextColor(ST77XX_WHITE);
+  tft.print(txt+"\n");
+  // if(logline>150){
+  //   logline=0;
+  //   tft.fillScreen(ST77XX_BLACK);
+  // }
+}
+
+String datajadwalbulanan;
+
+void fill_schedule (String text){
+
+    
+  for(int i=0; i<32; i++){  
+
+    int awal=text.indexOf("tr");
+    Serial.printf("awal = %d ",awal);
+    int akhir=text.indexOf("/tr")-1;
+    Serial.printf("akhir = %d ",akhir);
+    Serial.println("hasil pemisahan");
+    // if(i<6){    txtft=txtft+ text.substring(awal,akhir)+"\n";}else{
+    //   txtft= text.substring(awal,(akhir-10))+"\n+"+txtft;
+    // }
+    for(int i = 1; i < 7; i++)
+    {
+        int awal=text.indexOf("td")+3;
+        
+        int akhir=text.indexOf("/td")-1;
+        datajadwalbulanan+=text.substring(awal,akhir);
+
+    }
+
+    
+    
+    /* if(i==0){
+      sshubuh="Shubuh  = "+text.substring(awal,akhir);
+      jsb=(text.substring(awal,akhir-3).toInt());
+      msb=(text.substring(awal+3,akhir).toInt());
+      Serial.print("jsb = ");
+      Serial.println(jsb);
+      Serial.print("msb = ");
+      Serial.println(msb);
+      txtft=txtft+sshubuh+"\n";
+      Serial.println(sshubuh);
+    }else if(i==1){
+      sdzuhur="Dzuhur  = "+text.substring(awal,akhir);
+      jdz=(text.substring(awal,akhir-3).toInt());
+      mdz=(text.substring(awal+3,akhir).toInt());
+      txtft=txtft+sdzuhur+"\n";
+      Serial.println(sdzuhur);
+
+    }else if(i==2){
+      sashar="Ashar   = "+text.substring(awal,akhir);
+      jas=(text.substring(awal,akhir-3).toInt());
+      mas=(text.substring(awal+3,akhir).toInt());
+      txtft=txtft+sashar+"\n";
+      Serial.println(sashar);
+    }else if(i==3){
+      smaghrib="Maghrib = "+text.substring(awal,akhir);
+      jmg=(text.substring(awal,akhir-3).toInt());
+      mmg=(text.substring(awal+3,akhir).toInt());
+      txtft=txtft+smaghrib+"\n";
+      Serial.println(smaghrib);
+    }else if(i==4){
+      sisyak="Isya'   = "+text.substring(awal,akhir);
+      jis=(text.substring(awal,akhir-3).toInt());
+      mis=(text.substring(awal+3,akhir).toInt());
+      txtft=txtft+sisyak+"\n";
+      Serial.println(sisyak);
+    }else if(i==5){
+      String waktu="Jadwal sholat \n"+text.substring(awal,(akhir-9));
+      txtft=waktu+"\n\n\n"+txtft+"\n\n\nsumber :\nbimasislam.kemenag.go.id";
+      datajadwal=txtft;
+      Serial.println(waktu);
+    } */
+    text=text.substring(akhir+2);
+    Serial.print("hasil trimming  = ");
+    Serial.println(text);  
+  }
+  Serial.print("data jadwal bulanan");
+  Serial.println(datajadwalbulanan);
+  tft.fillScreen(ST77XX_BLACK);
+  testdrawtext(string2char(txtft), ST77XX_WHITE);
+
+}
+char* string2char(String command){
+    if(command.length()!=0){
+        char *p = const_cast<char*>(command.c_str());
+        return p;
+    }
+}
+
+void testdrawtext(char *text, uint16_t color) {
+  tft.setCursor(0, 0);
+  tft.setTextColor(color);
+  tft.setTextWrap(true);
+  tft.print(text);
+}
+
+
+void reqjadwal (){
+
+  Serial.print("connecting to ");
+  Serial.println(host);
+
+  Serial.printf("Using fingerprint '%s'\n", fingerprint);
+  client.setFingerprint(fingerprint);
+
+  // if (!client.connect(host, httpsPort)) {
+  //   Serial.println("connection failed");
+  //   return;
+  // }
+  client.connect(host, httpsPort);
+  if(!client.connected()){
+    Serial.println("connection failed retry");
+    // delay(1000);
+    client.connect(host, httpsPort);
+  }
+  if(!client.connected()){
+    Serial.println("connection failed retry");
+    // delay(1000);
+    client.connect(host, httpsPort);
+    return; 
+  }
+  // String url = "/adzan/ajax/ajax.daily1.php?id=67";
+  String url = "/jadwal-salat/jakarta/2019-04/print";
+  Serial.print("requesting URL: ");
+  Serial.println(url);
+
+  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" +
+               "User-Agent: BuildFailureDetectorESP8266\r\n" +
+               "Connection: close\r\n\r\n");
+
+  Serial.println("request sent");
+  while (client.connected()) {
+    String line = client.readStringUntil('\n');
+    if (line == "\r") {
+      Serial.println("headers received");
+      break;
+    }
+  }
+  String line = client.readStringUntil('\n');
+  if (line.startsWith("{\"state\":\"success\"")) {
+    Serial.println("esp8266/Arduino CI successfull!");
+  } else {
+    Serial.println("esp8266/Arduino CI has failed");
+  }
+  line=client.readString();
+  int awal=line.indexOf("tbody");
+  int akhir=line.indexOf("/tbody");
+
+
+  String ekstrak=line.substring(awal,akhir);
+  Serial.print("Ekstrk > ");
+  Serial.println(ekstrak);
+  fill_schedule(ekstrak);
+
+  // testdrawtext("wait...", ST77XX_WHITE);
+  // Serial.println("reply was:");
+  // Serial.println("==========");
+  // Serial.println(line);
+  // Serial.println("==========");
+  // Serial.println("closing connection");
+}
+
+bool BLstate=0;
+long prevmillis;
+int angka=0;
+void loop() {
+  if((prevmillis+1000)<millis()){
+    angka++;
+    if(angka==30&&txtft.length()<12){
+      // reqjadwal();
+      ESP.restart();
+    }else if(angka>60){
+      angka=0;
+      if(!BLstate){
+        BLstate=1;
+        
+      tft.fillScreen(ST77XX_BLACK);
+      int rnd=random(0,5);
+      if (rnd==0){
+        testdrawtext(string2char(txtft), ST77XX_WHITE);
+      }else if(rnd==1){
+        testdrawtext(string2char(txtft), ST77XX_GREEN);
+      }else if(rnd==2){
+        testdrawtext(string2char(txtft), ST77XX_RED);
+      }else if(rnd>2){
+        testdrawtext(string2char(txtft), ST77XX_BLUE);
+      }
+      } else {BLstate=0;}
+      digitalWrite(pinBL, BLstate);
+    }
+    prevmillis=millis();
+  }
+}
