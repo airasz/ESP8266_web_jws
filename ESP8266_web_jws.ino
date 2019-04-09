@@ -225,7 +225,7 @@ void reqjadwal (){
     return; 
   }
   // String url = "/adzan/ajax/ajax.daily1.php?id=67";
-  String url = "/jadwal-salat/jakarta/2019-04/print";
+  String url = "/jadwal-salat/jakarta/2019-04";
   Serial.print("requesting URL: ");
   Serial.println(url);
 
@@ -253,6 +253,8 @@ void reqjadwal (){
   int akhir=line.indexOf("/tbody");
 
 
+  Serial.print("line > ");
+  Serial.println(line);
   String ekstrak=line.substring(awal,akhir);
   Serial.print("Ekstrk > ");
   Serial.println(ekstrak);
